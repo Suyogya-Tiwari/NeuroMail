@@ -11,17 +11,22 @@ function App() {
       .get("http://127.0.0.1:8000/emails")
       .then((response) => {
         setEmails(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
       });
 
   }, []);
 
   return (
-    <div style={{
-      backgroundColor: "#111827",
-      color: "white",
-      minHeight: "100vh",
-      padding: "20px"
-    }}>
+    <div
+      style={{
+        backgroundColor: "#111827",
+        color: "white",
+        minHeight: "100vh",
+        padding: "20px"
+      }}
+    >
 
       <h1>NeuroMail AI</h1>
 
@@ -43,6 +48,14 @@ function App() {
             <strong>From:</strong>
             {" "}
             {email.sender}
+          </p>
+
+          <p>
+            <strong>Body:</strong>
+          </p>
+
+          <p>
+            {email.body}
           </p>
 
           <p>

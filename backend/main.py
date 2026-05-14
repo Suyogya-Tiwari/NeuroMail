@@ -44,18 +44,13 @@ def get_emails():
         )
 
         summary = summarize_email(
-            f"""
-            Subject:
-            {details['subject']}
-
-            Sender:
-            {details['sender']}
-            """
+            details['body']
         )
 
         email_data.append({
             "subject": details['subject'],
             "sender": details['sender'],
+            "body":details['body'],
             "summary": summary
         })
 
