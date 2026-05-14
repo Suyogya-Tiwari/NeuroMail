@@ -1,19 +1,42 @@
-import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
+  const [emails, setEmails] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/emails")
+      .then((response) => {
+        setEmails(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
   return (
-    <div>
-      <Navbar />
+    <div style={{
+      backgroundColor: "#111827",
+      minHeight: "100vh",
+      color: "white",
+      padding: "20px"
+    }}>
+      <h1>MailMind AI Inbox</h1>
 
-      <div style={{ display: "flex" }}>
-        <Sidebar />
-
-        <div style={{ padding: "30px", color: "white" }}>
-          <h1>Welcome to NeuroMail AI</h1>
-          <p>Your AI email assistant dashboard.</p>
+      {emails.map((email, index) => (
+        <div
+          key={index}
+          style={{
+            padding: "10px",
+            marginTop: "10px",
+            backgroundColor: "#1f2937",
+            borderRadius: "8px"
+          }}
+        >
+          {email.id}
         </div>
-      </div>
+      ))}
     </div>
   );
 }
