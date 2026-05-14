@@ -25,3 +25,28 @@ def get_gmail_service():
     service = build('gmail', 'v1', credentials=creds)
 
     return service
+
+def get_email_details(service, message_id):
+
+    message = service.users().messages().get(
+        userId='me',
+        id=message_id
+    ).execute()
+
+    payload = message.get('payload', {})
+    headers = payload.get('headers', [])
+
+    subject = ""
+    sender = ""
+
+    for header in headers:
+        if header['name'] == 'Subject':
+            subject = header['value']
+
+        if header['name'] == 'From':
+            sender = header['value']
+
+    return {
+        "subject": subject,
+        "sender": sender
+    }

@@ -1,6 +1,12 @@
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from gmail_service import get_gmail_service
+from fastapi.middleware.cors import CORSMiddleware
+
+from gmail_service import (
+    get_gmail_service,
+    get_email_details
+)
+
+from ai_service import summarize_email
 
 app = FastAPI()
 
@@ -14,17 +20,43 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {"message": "MailMind AI Backend Running"}
+    return {"message": "NeuroMail AI Backend Running"}
 
 @app.get("/emails")
 def get_emails():
+
     service = get_gmail_service()
 
     results = service.users().messages().list(
         userId='me',
-        maxResults=10
+        maxResults=5
     ).execute()
 
     messages = results.get('messages', [])
 
-    return messages
+    email_data = []
+
+    for msg in messages:
+
+        details = get_email_details(
+            service,
+            msg['id']
+        )
+
+        summary = summarize_email(
+            f"""
+            Subject:
+            {details['subject']}
+
+            Sender:
+            {details['sender']}
+            """
+        )
+
+        email_data.append({
+            "subject": details['subject'],
+            "sender": details['sender'],
+            "summary": summary
+        })
+
+    return email_data
