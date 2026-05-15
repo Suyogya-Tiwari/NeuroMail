@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function App() {
@@ -8,7 +8,7 @@ function App() {
   useEffect(() => {
 
     axios
-      .get("http://127.0.0.1:8000/emails")
+      .get("http://localhost:8000/emails")
       .then((response) => {
         setEmails(response.data);
       })
@@ -22,13 +22,20 @@ function App() {
     <div
       style={{
         backgroundColor: "#111827",
-        color: "white",
         minHeight: "100vh",
-        padding: "20px"
+        padding: "20px",
+        color: "white"
       }}
     >
 
-      <h1>NeuroMail AI</h1>
+      <h1
+        style={{
+          fontSize: "32px",
+          marginBottom: "30px"
+        }}
+      >
+        MailMind AI
+      </h1>
 
       {emails.map((email, index) => (
 
@@ -37,12 +44,14 @@ function App() {
           style={{
             backgroundColor: "#1f2937",
             padding: "20px",
-            marginTop: "20px",
-            borderRadius: "10px"
+            marginBottom: "20px",
+            borderRadius: "12px"
           }}
         >
 
-          <h2>{email.subject}</h2>
+          <h2>
+            {email.subject}
+          </h2>
 
           <p>
             <strong>From:</strong>
@@ -50,7 +59,11 @@ function App() {
             {email.sender}
           </p>
 
-          <p>
+          <p
+            style={{
+              marginTop: "15px"
+            }}
+          >
             <strong>Body:</strong>
           </p>
 
@@ -58,11 +71,34 @@ function App() {
             {email.body}
           </p>
 
-          <p>
+          <p
+            style={{
+              marginTop: "15px"
+            }}
+          >
             <strong>Summary:</strong>
             {" "}
             {email.summary}
           </p>
+
+          <p
+            style={{
+              marginTop: "15px"
+            }}
+          >
+            <strong>Suggested Reply:</strong>
+          </p>
+
+          <div
+            style={{
+              backgroundColor: "#374151",
+              padding: "12px",
+              borderRadius: "8px",
+              marginTop: "10px"
+            }}
+          >
+            {email.reply}
+          </div>
 
         </div>
 

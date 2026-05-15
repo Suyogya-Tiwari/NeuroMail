@@ -6,7 +6,10 @@ from gmail_service import (
     get_email_details
 )
 
-from ai_service import summarize_email
+from ai_service import (
+    summarize_email,
+    generate_reply
+)
 
 app = FastAPI()
 
@@ -29,7 +32,7 @@ def get_emails():
 
     results = service.users().messages().list(
         userId='me',
-        maxResults=5
+        maxResults=3
     ).execute()
 
     messages = results.get('messages', [])
@@ -47,11 +50,16 @@ def get_emails():
             details['body']
         )
 
+        reply = generate_reply(
+            details['body']
+        )
+
         email_data.append({
             "subject": details['subject'],
             "sender": details['sender'],
-            "body":details['body'],
-            "summary": summary
+            "body": details['body'][:300],
+            "summary": summary,
+            "reply": reply
         })
 
     return email_data

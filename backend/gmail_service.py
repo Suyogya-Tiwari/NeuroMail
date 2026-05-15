@@ -29,6 +29,8 @@ def get_gmail_service():
 
 def get_email_details(service, message_id):
 
+    import base64
+
     message = service.users().messages().get(
         userId='me',
         id=message_id
@@ -49,30 +51,29 @@ def get_email_details(service, message_id):
         if header['name'] == 'From':
             sender = header['value']
 
-    parts = payload.get('parts')
+    try:
 
-    if parts:
+        parts = payload.get('parts', [])
 
         for part in parts:
 
-            mime_type = part.get('mimeType')
+            if part.get('mimeType') == 'text/plain':
 
-            if mime_type == 'text/plain':
-
-                data = part['body'].get('data')
+                data = part.get('body', {}).get('data')
 
                 if data:
 
-                    decoded_data = base64.urlsafe_b64decode(
+                    body = base64.urlsafe_b64decode(
                         data
-                    ).decode('utf-8')
-
-                    body = decoded_data
+                    ).decode('utf-8', errors='ignore')
 
                     break
+
+    except Exception:
+        body = "Unable to load email body."
 
     return {
         "subject": subject,
         "sender": sender,
-        "body": body
+        "body": body[:500]
     }
