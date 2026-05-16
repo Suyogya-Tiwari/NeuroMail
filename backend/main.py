@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from gmail_service import (
@@ -26,13 +26,14 @@ def home():
     return {"message": "NeuroMail AI Backend Running"}
 
 @app.get("/emails")
-def get_emails():
+def get_emails(label: str = Query("INBOX", description="The label to filter by")):
 
     service = get_gmail_service()
 
     results = service.users().messages().list(
         userId='me',
-        maxResults=3
+        labelIds=[label.upper()],
+        maxResults=10
     ).execute()
 
     messages = results.get('messages', [])
@@ -57,7 +58,8 @@ def get_emails():
         email_data.append({
             "subject": details['subject'],
             "sender": details['sender'],
-            "body": details['body'][:300],
+            "date": details.get('date', 'Unknown Date'),
+            "body": details['body'],
             "summary": summary,
             "reply": reply
         })

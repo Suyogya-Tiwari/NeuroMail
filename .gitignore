@@ -222,3 +222,5 @@ venv
 node_modules
 credentials.json
 token.pickle
+token.json
+.env

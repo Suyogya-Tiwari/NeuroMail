@@ -1,110 +1,62 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Layout from "./components/Layout";
+import StatsBar from "./components/StatsBar";
+import EmailList from "./components/EmailList";
+import EmailDetail from "./components/EmailDetail";
 
 function App() {
-
   const [emails, setEmails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEmailIndex, setSelectedEmailIndex] = useState(null);
+  const [activeFolder, setActiveFolder] = useState('INBOX');
 
   useEffect(() => {
-
-    axios
-      .get("http://localhost:8000/emails")
-      .then((response) => {
-        setEmails(response.data);
+    setLoading(true);
+    axios.get(`http://localhost:8000/emails?label=${activeFolder}`)
+      .then((res) => {
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setEmails(data);
+        } else if (Array.isArray(data?.emails)) {
+          setEmails(data.emails);
+        } else {
+          setEmails([]);
+        }
+        setSelectedEmailIndex(null); // Reset selection when folder changes
+        setLoading(false);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((err) => {
+        console.error("API ERROR:", err);
+        setEmails([]);
+        setLoading(false);
       });
+  }, [activeFolder]);
 
-  }, []);
+  const selectedEmail = selectedEmailIndex !== null ? emails[selectedEmailIndex] : null;
 
   return (
-    <div
-      style={{
-        backgroundColor: "#111827",
-        minHeight: "100vh",
-        padding: "20px",
-        color: "white"
-      }}
-    >
-
-      <h1
-        style={{
-          fontSize: "32px",
-          marginBottom: "30px"
-        }}
-      >
-        MailMind AI
-      </h1>
-
-      {emails.map((email, index) => (
-
-        <div
-          key={index}
-          style={{
-            backgroundColor: "#1f2937",
-            padding: "20px",
-            marginBottom: "20px",
-            borderRadius: "12px"
-          }}
-        >
-
-          <h2>
-            {email.subject}
-          </h2>
-
-          <p>
-            <strong>From:</strong>
-            {" "}
-            {email.sender}
-          </p>
-
-          <p
-            style={{
-              marginTop: "15px"
-            }}
-          >
-            <strong>Body:</strong>
-          </p>
-
-          <p>
-            {email.body}
-          </p>
-
-          <p
-            style={{
-              marginTop: "15px"
-            }}
-          >
-            <strong>Summary:</strong>
-            {" "}
-            {email.summary}
-          </p>
-
-          <p
-            style={{
-              marginTop: "15px"
-            }}
-          >
-            <strong>Suggested Reply:</strong>
-          </p>
-
-          <div
-            style={{
-              backgroundColor: "#374151",
-              padding: "12px",
-              borderRadius: "8px",
-              marginTop: "10px"
-            }}
-          >
-            {email.reply}
+    <Layout activeFolder={activeFolder} setActiveFolder={setActiveFolder}>
+      <div className="p-6 h-full flex flex-col w-full max-w-7xl mx-auto">
+        <StatsBar emails={emails} />
+        
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Pane: Email List */}
+          <div className="w-[400px] flex flex-col border-r border-slate-800/50 pr-4">
+            <h2 className="text-xl font-bold mb-4 px-1 text-slate-100 tracking-tight capitalize">{activeFolder.toLowerCase()}</h2>
+            <EmailList 
+              emails={emails} 
+              selectedEmailIndex={selectedEmailIndex}
+              setSelectedEmailIndex={setSelectedEmailIndex}
+              loading={loading}
+            />
           </div>
 
+          {/* Right Pane: Email Detail */}
+          <EmailDetail email={selectedEmail} />
         </div>
-
-      ))}
-
-    </div>
+      </div>
+    </Layout>
   );
 }
 
